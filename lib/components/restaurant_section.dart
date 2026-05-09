@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/restaurant.dart';
+import '../services/shared_prefs_service.dart';
 import '../services/user_preferences_manager.dart';
 import '../widgets/restaurant_landscape_card.dart';
 
@@ -39,6 +40,9 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
   @override
   void initState() {
     super.initState();
+    final savedQuery = SharedPrefsService.instance.lastCenterSearchText;
+    _query = savedQuery;
+    _searchController.text = savedQuery;
     _searchController.addListener(_handleSearchChanged);
   }
 
@@ -56,6 +60,7 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
       setState(() {
         _query = value;
       });
+      SharedPrefsService.instance.setLastCenterSearchText(value);
     }
   }
 
@@ -82,6 +87,7 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
     setState(() {
       _query = value.trim();
     });
+    SharedPrefsService.instance.setLastCenterSearchText(_query);
   }
 
   void _clearFilters() {
@@ -106,11 +112,9 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
     Set<String> favoriteCenters,
   ) {
     final normalizedQuery = _query.toLowerCase();
-    final results =
-        List.generate(
-          widget.fitnessCenters.length,
-          (index) => MapEntry(index, widget.fitnessCenters[index]),
-        ).where((entry) {
+    final results = widget.fitnessCenters
+        .map((center) => MapEntry(center.id, center))
+        .where((entry) {
           final center = entry.value;
           final matchesQuery =
               normalizedQuery.isEmpty ||
@@ -152,16 +156,14 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
   List<MapEntry<int, FitnessCenter>> _suggestions(String value) {
     final normalizedValue = value.toLowerCase().trim();
     if (normalizedValue.isEmpty) {
-      return List.generate(
-        widget.fitnessCenters.length,
-        (index) => MapEntry(index, widget.fitnessCenters[index]),
-      ).take(5).toList();
+      return widget.fitnessCenters
+          .map((center) => MapEntry(center.id, center))
+          .take(5)
+          .toList();
     }
 
-    return List.generate(
-          widget.fitnessCenters.length,
-          (index) => MapEntry(index, widget.fitnessCenters[index]),
-        )
+    return widget.fitnessCenters
+        .map((center) => MapEntry(center.id, center))
         .where((entry) {
           final center = entry.value;
           return center.name.toLowerCase().contains(normalizedValue) ||
@@ -301,6 +303,17 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
 
   Widget _buildResultsSummary(int resultCount, int favoriteCount) {
     final colorScheme = Theme.of(context).colorScheme;
+    final lastViewedCenterId = SharedPrefsService.instance.lastViewedCenterId;
+    FitnessCenter? lastViewedCenter;
+    if (lastViewedCenterId != null) {
+      for (final center in widget.fitnessCenters) {
+        if (center.id == lastViewedCenterId) {
+          lastViewedCenter = center;
+          break;
+        }
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -377,6 +390,16 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
                       avatar: const Icon(Icons.favorite_outline, size: 18),
                       label: Text('$favoriteCount saved'),
                     ),
+                    if (lastViewedCenter != null)
+                      ActionChip(
+                        avatar: const Icon(Icons.history, size: 18),
+                        label: Text('Last viewed: ${lastViewedCenter.name}'),
+                        onPressed: () {
+                          context.go(
+                            '/${widget.currentTab}/center/${lastViewedCenter!.id}',
+                          );
+                        },
+                      ),
                   ],
                 ),
               ],
@@ -479,7 +502,7 @@ class _FitnessCenterSectionState extends State<FitnessCenterSection> {
               width: 320,
               child: FitnessCenterLandscapeCard(
                 fitnessCenter: entry.value,
-                index: entry.key,
+                centerId: entry.key,
                 currentTab: widget.currentTab,
                 isFavorite: preferencesManager.isFavorite(entry.value.name),
                 onFavoriteToggle: () {

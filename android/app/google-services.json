@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "359196195395",
+    "firebase_url": "https://fitnesscentersapp-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "fitnesscentersapp",
+    "storage_bucket": "fitnesscentersapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359196195395:android:21e2ce7456ba07d10972f6",
+        "android_client_info": {
+          "package_name": "com.example.chapter3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD8hwFewXDuj-_5u13uC1TXyhd3IeJ8v8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

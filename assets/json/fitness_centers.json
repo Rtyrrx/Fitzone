@@ -1,0 +1,346 @@
+{
+  "centers": [
+    {
+      "id": 0,
+      "name": "Iron Paradise Gym",
+      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop",
+      "description": "A full-service strength and cardio club with modern equipment, recovery space, and energetic coaching.",
+      "location": "123 Fitness Ave, Downtown",
+      "sportType": "Gym",
+      "rating": 4.8,
+      "openingHours": "5AM - 11PM",
+      "membershipPrice": "$29.99/mo",
+      "isOpen": true,
+      "distance": 1.2,
+      "memberships": [
+        {
+          "name": "Basic Access",
+          "price": 29.99,
+          "description": "Gym floor and cardio equipment",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Premium",
+          "price": 49.99,
+          "description": "Full access + group classes",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "VIP",
+          "price": 79.99,
+          "description": "All access + personal trainer",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Day Pass",
+          "price": 15.0,
+          "description": "Single day full access",
+          "duration": "Day",
+          "imageUrl": "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Annual",
+          "price": 399.99,
+          "description": "Best value - save 30%",
+          "duration": "Yearly",
+          "imageUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Student",
+          "price": 24.99,
+          "description": "Valid student ID required",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Zen Yoga Studio",
+      "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+      "description": "A calm urban yoga studio with hot yoga, flow sessions, and restorative evening classes.",
+      "location": "456 Wellness Blvd, Midtown",
+      "sportType": "Yoga",
+      "rating": 4.9,
+      "openingHours": "6AM - 9PM",
+      "membershipPrice": "$89.99/mo",
+      "isOpen": true,
+      "distance": 2.1,
+      "memberships": [
+        {
+          "name": "Drop-In Class",
+          "price": 20.0,
+          "description": "Single class access",
+          "duration": "Per Class",
+          "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Unlimited Monthly",
+          "price": 89.99,
+          "description": "Unlimited yoga classes",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "10 Class Pack",
+          "price": 150.0,
+          "description": "Valid for 3 months",
+          "duration": "3 Months",
+          "imageUrl": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Beginner Package",
+          "price": 59.99,
+          "description": "4 intro classes + mat rental",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Private Session",
+          "price": 75.0,
+          "description": "One-on-one instruction",
+          "duration": "Per Session",
+          "imageUrl": "https://images.unsplash.com/photo-1510894347713-fc3ed6fdf539?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Couples Yoga",
+          "price": 45.0,
+          "description": "Partner yoga session",
+          "duration": "Per Session",
+          "imageUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=300&h=300&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Velo Pulse Studio",
+      "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+      "description": "A premium spin studio with high-energy playlists, smart bikes, and performance-focused sessions.",
+      "location": "245 Motion Ave, Central City",
+      "sportType": "Cycling",
+      "rating": 4.8,
+      "openingHours": "6AM - 9PM",
+      "membershipPrice": "$139.99/mo",
+      "isOpen": true,
+      "distance": 1.4,
+      "memberships": [
+        {
+          "name": "Single Ride",
+          "price": 25.0,
+          "description": "One spin class",
+          "duration": "Per Class",
+          "imageUrl": "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Unlimited Rides",
+          "price": 149.99,
+          "description": "Unlimited monthly cycling",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "20 Ride Pack",
+          "price": 350.0,
+          "description": "Best value for regulars",
+          "duration": "6 Months",
+          "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "First Timer",
+          "price": 15.0,
+          "description": "Intro rate for new riders",
+          "duration": "First Class",
+          "imageUrl": "https://images.unsplash.com/photo-1520877880798-5ee004e3f11e?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Premium Member",
+          "price": 199.99,
+          "description": "Priority booking + gear",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1594882645126-14020914d58d?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Corporate",
+          "price": 99.99,
+          "description": "Group rates available",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Uppercut Arena",
+      "imageUrl": "https://images.unsplash.com/photo-1517438322307-e67111335449?w=400&h=300&fit=crop",
+      "description": "A high-energy boxing arena known for sharp coaches, conditioning rounds, and sparring prep.",
+      "location": "93 Victory Road, Midtown West",
+      "sportType": "Boxing",
+      "rating": 4.8,
+      "openingHours": "5AM - 11PM",
+      "membershipPrice": "$89.99/mo",
+      "isOpen": true,
+      "distance": 1.7,
+      "memberships": [
+        {
+          "name": "Trial Class",
+          "price": 10.0,
+          "description": "First class special",
+          "duration": "First Class",
+          "imageUrl": "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Basic Boxing",
+          "price": 79.99,
+          "description": "Group classes + bag work",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1517438322307-e67111335449?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Fighter Program",
+          "price": 149.99,
+          "description": "Intensive training + sparring",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Personal Training",
+          "price": 85.0,
+          "description": "One-on-one boxing session",
+          "duration": "Per Session",
+          "imageUrl": "https://images.unsplash.com/photo-1550259979-ed79b48d2a89?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Kids Boxing",
+          "price": 59.99,
+          "description": "Ages 8-14, twice weekly",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1517438476312-10d79c077509?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Women Only",
+          "price": 69.99,
+          "description": "Ladies boxing classes",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1517438476312-10d79c077509?w=300&h=300&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Blue Wave Aquatics",
+      "imageUrl": "https://images.unsplash.com/photo-1560090995-01632a28895b?w=400&h=300&fit=crop",
+      "description": "A premium aquatics space with bright lanes, technique coaching, and recovery-focused swim sessions.",
+      "location": "44 Marina Point, Lakeside",
+      "sportType": "Pool",
+      "rating": 4.8,
+      "openingHours": "5:30AM - 9PM",
+      "membershipPrice": "$59.99/mo",
+      "isOpen": true,
+      "distance": 1.5,
+      "memberships": [
+        {
+          "name": "Day Swim",
+          "price": 12.0,
+          "description": "Single day pool access",
+          "duration": "Day",
+          "imageUrl": "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Monthly Swim",
+          "price": 45.99,
+          "description": "Unlimited pool access",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1560090995-01632a28895b?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Swim Lessons",
+          "price": 120.0,
+          "description": "8 group lessons",
+          "duration": "2 Months",
+          "imageUrl": "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Aqua Fitness",
+          "price": 55.99,
+          "description": "Water aerobics classes",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Family Pass",
+          "price": 89.99,
+          "description": "Up to 4 family members",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Private Lane",
+          "price": 25.0,
+          "description": "Reserved lane for 1 hour",
+          "duration": "Per Hour",
+          "imageUrl": "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=300&h=300&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Forge Functional Club",
+      "imageUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400&h=300&fit=crop",
+      "description": "A premium functional training club with team WODs, skill coaching, and advanced strength zones.",
+      "location": "29 Foundry Street, Warehouse District",
+      "sportType": "CrossFit",
+      "rating": 4.9,
+      "openingHours": "5AM - 10PM",
+      "membershipPrice": "$189/mo",
+      "isOpen": true,
+      "distance": 1.1,
+      "memberships": [
+        {
+          "name": "Intro Month",
+          "price": 99.0,
+          "description": "Foundations + unlimited WODs",
+          "duration": "First Month",
+          "imageUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Unlimited",
+          "price": 175.0,
+          "description": "All classes, all times",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "3x Week",
+          "price": 135.0,
+          "description": "3 classes per week",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Open Gym",
+          "price": 75.0,
+          "description": "Equipment access only",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1533681904393-9ab6eee7e408?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Competition",
+          "price": 225.0,
+          "description": "Advanced athletes program",
+          "duration": "Monthly",
+          "imageUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=300&h=300&fit=crop"
+        },
+        {
+          "name": "Drop-In",
+          "price": 30.0,
+          "description": "Single class for visitors",
+          "duration": "Per Class",
+          "imageUrl": "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?w=300&h=300&fit=crop"
+        }
+      ]
+    }
+  ]
+}

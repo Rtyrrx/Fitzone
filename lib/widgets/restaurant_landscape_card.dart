@@ -4,7 +4,7 @@ import '../models/restaurant.dart';
 
 class FitnessCenterLandscapeCard extends StatelessWidget {
   final FitnessCenter fitnessCenter;
-  final int index;
+  final int centerId;
   final int currentTab;
   final bool isFavorite;
   final Future<void> Function() onFavoriteToggle;
@@ -13,7 +13,7 @@ class FitnessCenterLandscapeCard extends StatelessWidget {
   const FitnessCenterLandscapeCard({
     super.key,
     required this.fitnessCenter,
-    required this.index,
+    required this.centerId,
     required this.currentTab,
     required this.isFavorite,
     required this.onFavoriteToggle,
@@ -26,7 +26,7 @@ class FitnessCenterLandscapeCard extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(24),
       onTap: () {
-        context.go('/$currentTab/center/$index');
+        context.go('/$currentTab/center/$centerId');
       },
       child: Card(
         clipBehavior: Clip.antiAlias,
@@ -40,7 +40,7 @@ class FitnessCenterLandscapeCard extends StatelessWidget {
               Stack(
                 children: [
                   Hero(
-                    tag: 'fitness-center-$index',
+                    tag: 'fitness-center-$centerId',
                     child: Container(
                       height: fullWidth ? 180 : 120,
                       width: double.infinity,

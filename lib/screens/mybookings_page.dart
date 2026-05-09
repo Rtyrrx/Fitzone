@@ -1,24 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../services/orders_manager.dart';
 import '../models/order.dart';
 
 class MyBookingsPage extends StatelessWidget {
-  final OrdersManager ordersManager;
+  final List<Order> bookings;
+  final bool isLoading;
+  final Object? error;
+  final Future<void> Function(Order order) onDeleteBooking;
 
-  const MyBookingsPage({super.key, required this.ordersManager});
+  const MyBookingsPage({
+    super.key,
+    required this.bookings,
+    required this.isLoading,
+    required this.error,
+    required this.onDeleteBooking,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading && bookings.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (error != null && bookings.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('My Bookings')),
+        body: Center(child: Text('Unable to load bookings')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('My Bookings')),
-      body: ListenableBuilder(
-        listenable: ordersManager,
-        builder: (context, child) {
-          final orders = ordersManager.orders;
-
-          if (orders.isEmpty) {
-            return const Center(
+      body: bookings.isEmpty
+          ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -39,29 +53,25 @@ class MyBookingsPage extends StatelessWidget {
                   ),
                 ],
               ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return _BookingTile(
-                order: order,
-                onDelete: () => ordersManager.removeOrder(order.id),
-              );
-            },
-          );
-        },
-      ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: bookings.length,
+              itemBuilder: (context, index) {
+                final order = bookings[index];
+                return _BookingTile(
+                  order: order,
+                  onDelete: () => onDeleteBooking(order),
+                );
+              },
+            ),
     );
   }
 }
 
 class _BookingTile extends StatelessWidget {
   final Order order;
-  final VoidCallback onDelete;
+  final Future<void> Function() onDelete;
 
   const _BookingTile({required this.order, required this.onDelete});
 
@@ -77,9 +87,9 @@ class _BookingTile extends StatelessWidget {
             child: const Text('No'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              onDelete();
+              await onDelete();
             },
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,

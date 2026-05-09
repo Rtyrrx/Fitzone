@@ -4,7 +4,7 @@ import '../models/restaurant.dart';
 import '../models/restaurant_item.dart';
 import '../models/order.dart';
 import '../services/cart_manager.dart';
-import '../services/orders_manager.dart';
+import '../services/shared_prefs_service.dart';
 import '../services/user_preferences_manager.dart';
 import '../components/item_details.dart';
 import 'checkout_page.dart';
@@ -14,16 +14,16 @@ class FitnessCenterPage extends StatefulWidget {
   final int centerId;
   final FitnessCenter fitnessCenter;
   final CartManager cartManager;
-  final OrdersManager ordersManager;
   final UserPreferencesManager preferencesManager;
+  final Future<void> Function(Order order) onSubmitBooking;
 
   const FitnessCenterPage({
     super.key,
     required this.centerId,
     required this.fitnessCenter,
     required this.cartManager,
-    required this.ordersManager,
     required this.preferencesManager,
+    required this.onSubmitBooking,
   });
 
   @override
@@ -37,6 +37,12 @@ class _FitnessCenterPageState extends State<FitnessCenterPage> {
   static const double drawerWidth = 375.0;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPrefsService.instance.setLastViewedCenterId(widget.fitnessCenter.id);
+  }
 
   int _calculateColumnCount(double screenWidth) {
     return screenWidth > desktopThreshold ? 2 : 1;
@@ -79,8 +85,11 @@ class _FitnessCenterPageState extends State<FitnessCenterPage> {
           didUpdate: () {
             setState(() {});
           },
-          onSubmit: (Order order) {
-            widget.ordersManager.addOrder(order);
+          onSubmit: (Order order) async {
+            await widget.onSubmitBooking(order);
+            if (!mounted) {
+              return;
+            }
             Navigator.pop(context);
             context.go('/${FitZoneTab.bookings.value}');
           },
@@ -277,6 +286,13 @@ class _FitnessCenterPageState extends State<FitnessCenterPage> {
             ),
             const SizedBox(height: 8),
             Text(
+              widget.fitnessCenter.description,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
               widget.fitnessCenter.address,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -399,7 +415,7 @@ class _FitnessCenterPageState extends State<FitnessCenterPage> {
                     fit: StackFit.expand,
                     children: [
                       Hero(
-                        tag: 'fitness-center-${widget.centerId}',
+                        tag: 'fitness-center-${widget.fitnessCenter.id}',
                         child: Container(
                           color: Theme.of(
                             context,

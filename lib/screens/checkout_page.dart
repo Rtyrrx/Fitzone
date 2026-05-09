@@ -7,7 +7,7 @@ import '../services/cart_manager.dart';
 class CheckoutPage extends StatefulWidget {
   final CartManager cartManager;
   final VoidCallback didUpdate;
-  final void Function(Order) onSubmit;
+  final Future<void> Function(Order) onSubmit;
 
   const CheckoutPage({
     super.key,
@@ -213,7 +213,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       width: double.infinity,
       child: FilledButton(
         onPressed: hasItems
-            ? () {
+            ? () async {
                 final order = Order(
                   id: const Uuid().v4(),
                   items: widget.cartManager.getCartItems(),
@@ -226,8 +226,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   scheduledDate: _selectedDate,
                   scheduledTime: _formatTimeOfDay(_selectedTime),
                 );
+                await widget.onSubmit(order);
                 widget.cartManager.clearCart();
-                widget.onSubmit(order);
               }
             : null,
         child: Padding(

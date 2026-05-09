@@ -1,4 +1,11 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'restaurant_item.g.dart';
+
+@JsonSerializable()
 class MembershipPlan {
+  final int? id;
+  final int? centerId;
   final String name;
   final double price;
   final String description;
@@ -6,6 +13,8 @@ class MembershipPlan {
   final String imageUrl;
 
   const MembershipPlan({
+    this.id,
+    this.centerId,
     required this.name,
     required this.price,
     required this.description,
@@ -13,23 +22,8 @@ class MembershipPlan {
     this.imageUrl = '',
   });
 
-  factory MembershipPlan.fromJson(Map<String, dynamic> json) {
-    return MembershipPlan(
-      name: json['name'] as String,
-      price: (json['price'] as num).toDouble(),
-      description: json['description'] as String,
-      duration: json['duration'] as String? ?? 'Monthly',
-      imageUrl: json['imageUrl'] as String? ?? '',
-    );
-  }
+  factory MembershipPlan.fromJson(Map<String, dynamic> json) =>
+      _$MembershipPlanFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'price': price,
-      'description': description,
-      'duration': duration,
-      'imageUrl': imageUrl,
-    };
-  }
+  Map<String, dynamic> toJson() => _$MembershipPlanToJson(this);
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../models/order.dart';
 import '../models/restaurant.dart';
 import '../services/auth_manager.dart';
-import '../services/orders_manager.dart';
 import '../services/user_preferences_manager.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final List<FitnessCenter> fitnessCenters;
+  final List<Order> bookings;
   final AuthManager authManager;
-  final OrdersManager ordersManager;
   final UserPreferencesManager preferencesManager;
   final ThemeMode themeMode;
   final ValueChanged<bool> onThemeChanged;
@@ -16,12 +16,55 @@ class ProfilePage extends StatelessWidget {
   const ProfilePage({
     super.key,
     required this.fitnessCenters,
+    required this.bookings,
     required this.authManager,
-    required this.ordersManager,
     required this.preferencesManager,
     required this.themeMode,
     required this.onThemeChanged,
   });
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  bool _profileNamePromptScheduled = false;
+
+  List<FitnessCenter> get fitnessCenters => widget.fitnessCenters;
+  List<Order> get bookings => widget.bookings;
+  AuthManager get authManager => widget.authManager;
+  UserPreferencesManager get preferencesManager => widget.preferencesManager;
+  ThemeMode get themeMode => widget.themeMode;
+  ValueChanged<bool> get onThemeChanged => widget.onThemeChanged;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleProfileNamePrompt();
+  }
+
+  @override
+  void didUpdateWidget(ProfilePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.preferencesManager != widget.preferencesManager) {
+      _profileNamePromptScheduled = false;
+    }
+    _scheduleProfileNamePrompt();
+  }
+
+  void _scheduleProfileNamePrompt() {
+    if (_profileNamePromptScheduled ||
+        !widget.preferencesManager.needsProfileName) {
+      return;
+    }
+    _profileNamePromptScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !widget.preferencesManager.needsProfileName) {
+        return;
+      }
+      _showEditProfileDialog(context, requireName: true);
+    });
+  }
 
   ImageProvider<Object> _buildImageProvider(String path) {
     if (path.startsWith('http')) {
@@ -30,20 +73,24 @@ class ProfilePage extends StatelessWidget {
     return AssetImage(path);
   }
 
-  Future<void> _showEditProfileDialog(BuildContext context) async {
+  Future<void> _showEditProfileDialog(
+    BuildContext context, {
+    bool requireName = false,
+  }) async {
     final nameController = TextEditingController(
-      text: preferencesManager.profileName,
+      text: widget.preferencesManager.profileName,
     );
     final emailController = TextEditingController(
-      text: preferencesManager.profileEmail,
+      text: widget.preferencesManager.profileEmail,
     );
     final formKey = GlobalKey<FormState>();
 
     final shouldSave = await showDialog<bool>(
       context: context,
+      barrierDismissible: !requireName,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Edit Profile'),
+          title: Text(requireName ? 'Complete Your Profile' : 'Edit Profile'),
           content: Form(
             key: formKey,
             child: Column(
@@ -65,6 +112,7 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: emailController,
+                  readOnly: requireName,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined),
@@ -83,10 +131,11 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancel'),
-            ),
+            if (!requireName)
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancel'),
+              ),
             FilledButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
@@ -101,14 +150,19 @@ class ProfilePage extends StatelessWidget {
     );
 
     if (shouldSave == true) {
-      await preferencesManager.updateProfile(
+      await widget.preferencesManager.updateProfile(
         name: nameController.text.trim(),
         email: emailController.text.trim(),
+        profileNameCompleted: requireName,
       );
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Profile updated')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              requireName ? 'Welcome to FitZone' : 'Profile updated',
+            ),
+          ),
+        );
       }
     }
   }
@@ -355,13 +409,12 @@ class ProfilePage extends StatelessWidget {
   }
 
   Future<void> _showFavoriteCentersSheet(BuildContext context) async {
-    final favorites =
-        List.generate(
-          fitnessCenters.length,
-          (index) => MapEntry(index, fitnessCenters[index]),
-        ).where((entry) {
+    final favorites = fitnessCenters
+        .map((center) => MapEntry(center.id, center))
+        .where((entry) {
           return preferencesManager.isFavorite(entry.value.name);
-        }).toList();
+        })
+        .toList();
 
     await showModalBottomSheet<void>(
       context: context,
@@ -474,7 +527,7 @@ class ProfilePage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return ListenableBuilder(
-      listenable: Listenable.merge([ordersManager, preferencesManager]),
+      listenable: preferencesManager,
       builder: (context, child) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -584,8 +637,8 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildStatsRow(BuildContext context, ColorScheme colorScheme) {
-    final totalBookings = ordersManager.orders.length;
-    final totalSessions = ordersManager.orders.fold<int>(
+    final totalBookings = bookings.length;
+    final totalSessions = bookings.fold<int>(
       0,
       (sum, order) => sum + order.totalItems,
     );
@@ -874,6 +927,13 @@ class ProfilePage extends StatelessWidget {
             title: 'Favorite Centers',
             subtitle: '${preferencesManager.favoriteCount} centers saved',
             onTap: () => _showFavoriteCentersSheet(context),
+          ),
+          _buildSettingsTile(
+            context,
+            icon: Icons.chat_bubble_outline,
+            title: 'Support Chat',
+            subtitle: 'Talk with support and community',
+            onTap: () => context.go('/chat'),
           ),
           _buildSettingsTile(
             context,

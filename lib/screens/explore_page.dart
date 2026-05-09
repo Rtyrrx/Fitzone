@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/explore_data.dart';
 import '../models/restaurant.dart';
 import '../services/mock_yummy_service.dart';
@@ -40,6 +41,39 @@ class _ExplorePageState extends State<ExplorePage> {
     });
   }
 
+  Future<void> _showJsonPreview() async {
+    final jsonText = await rootBundle.loadString('assets/json/fitness_centers.json');
+    if (!mounted) {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Fitness Centers JSON'),
+          content: SizedBox(
+            width: 600,
+            child: SingleChildScrollView(
+              child: SelectableText(
+                jsonText,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'Courier',
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ExploreData>(
@@ -57,6 +91,18 @@ class _ExplorePageState extends State<ExplorePage> {
 
         return ListView(
           children: [
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(
+                  onPressed: _showJsonPreview,
+                  icon: const Icon(Icons.data_object),
+                  label: const Text('View JSON'),
+                ),
+              ),
+            ),
             const SizedBox(height: 8),
             FitnessCenterSection(
               fitnessCenters: widget.fitnessCenters,

@@ -73,3 +73,18 @@ This project improves an existing Flutter fitness centers app by adding a Smart 
 ## Conclusion
 
 The final result improves usability, search speed, personalization, and overall interface quality of the fitness centers app while preserving the existing project structure and functionality.
+
+## Firestore Rule Note
+
+Recommended Firestore rule for the `fitness_messages` collection:
+
+```text
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /fitness_messages/{messageId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```

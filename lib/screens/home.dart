@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'explore_page.dart';
 import 'mybookings_page.dart';
 import 'profile_page.dart';
-import '../models/restaurant.dart';
+import '../models/order.dart';
 import '../services/cart_manager.dart';
-import '../services/orders_manager.dart';
 import '../services/auth_manager.dart';
+import '../providers/app_providers.dart';
+import '../services/shared_prefs_service.dart';
 import '../services/user_preferences_manager.dart';
 
 enum FitZoneTab { home, bookings, account }
@@ -37,11 +40,9 @@ extension FitZoneTabExtension on FitZoneTab {
   }
 }
 
-class Home extends StatefulWidget {
+class Home extends ConsumerStatefulWidget {
   final int tab;
-  final List<FitnessCenter> fitnessCenters;
   final CartManager cartManager;
-  final OrdersManager ordersManager;
   final AuthManager authManager;
   final UserPreferencesManager preferencesManager;
   final ThemeMode themeMode;
@@ -54,9 +55,7 @@ class Home extends StatefulWidget {
   const Home({
     super.key,
     required this.tab,
-    required this.fitnessCenters,
     required this.cartManager,
-    required this.ordersManager,
     required this.authManager,
     required this.preferencesManager,
     required this.themeMode,
@@ -68,16 +67,17 @@ class Home extends StatefulWidget {
   });
 
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends ConsumerState<Home> {
   late int _currentIndex;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.tab;
+    SharedPrefsService.instance.setSelectedTab(_currentIndex);
   }
 
   @override
@@ -85,6 +85,7 @@ class _HomeState extends State<Home> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.tab != widget.tab) {
       _currentIndex = widget.tab;
+      SharedPrefsService.instance.setSelectedTab(_currentIndex);
     }
   }
 
@@ -137,19 +138,82 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> _showJsonPreview() async {
+    final jsonText = await rootBundle.loadString(
+      'assets/json/fitness_centers.json',
+    );
+    if (!mounted) {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Fitness Centers JSON'),
+          content: SizedBox(
+            width: 600,
+            child: SingleChildScrollView(
+              child: SelectableText(
+                jsonText,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontFamily: 'Courier'),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final centersAsync = ref.watch(fitnessCentersProvider);
+    final bookingsAsync = ref.watch(bookingsProvider);
+    final fitnessCenters = centersAsync.valueOrNull ?? const [];
+    final bookings = bookingsAsync.valueOrNull ?? const <Order>[];
+    final centersError = centersAsync.hasError ? centersAsync.error : null;
+
     final screens = [
-      ExplorePage(
-        currentTab: _currentIndex,
-        fitnessCenters: widget.fitnessCenters,
-        preferencesManager: widget.preferencesManager,
+      if (centersError != null && fitnessCenters.isEmpty)
+        _buildLoadingError(
+          context,
+          title: 'Unable to load fitness centers',
+          message: centersError.toString(),
+        )
+      else
+        ExplorePage(
+          currentTab: _currentIndex,
+          fitnessCenters: fitnessCenters,
+          preferencesManager: widget.preferencesManager,
+        ),
+      MyBookingsPage(
+        bookings: bookings,
+        isLoading: bookingsAsync.isLoading,
+        error: bookingsAsync.hasError ? bookingsAsync.error : null,
+        onDeleteBooking: (order) async {
+          if (ref.read(firebaseConfiguredProvider) &&
+              ref.read(firebaseAuthProvider).currentUserId() != null) {
+            await ref.read(firebaseBookingDaoProvider).deleteBooking(order);
+          }
+          final bookingId = order.databaseId;
+          if (bookingId == null) {
+            return;
+          }
+          await ref.read(repositoryProvider).deleteBooking(bookingId);
+        },
       ),
-      MyBookingsPage(ordersManager: widget.ordersManager),
       ProfilePage(
-        fitnessCenters: widget.fitnessCenters,
+        fitnessCenters: fitnessCenters,
+        bookings: bookings,
         authManager: widget.authManager,
-        ordersManager: widget.ordersManager,
         preferencesManager: widget.preferencesManager,
         themeMode: widget.themeMode,
         onThemeChanged: widget.onThemeChanged,
@@ -161,6 +225,11 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text('FitZone'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.data_object),
+            onPressed: _showJsonPreview,
+            tooltip: 'View JSON',
+          ),
           IconButton(
             icon: const Icon(Icons.palette),
             onPressed: _showColorPicker,
@@ -207,6 +276,7 @@ class _HomeState extends State<Home> {
           setState(() {
             _currentIndex = index;
           });
+          SharedPrefsService.instance.setSelectedTab(index);
           context.go('/$index');
         },
         destinations: const [
@@ -226,6 +296,49 @@ class _HomeState extends State<Home> {
             label: 'Account',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingError(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: colorScheme.error),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    message,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

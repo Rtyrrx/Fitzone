@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/order.dart';
+import 'shared_prefs_service.dart';
 
 class OrdersManager extends ChangeNotifier {
   static const String _ordersKey = 'fitzone_orders';
@@ -11,7 +12,7 @@ class OrdersManager extends ChangeNotifier {
   List<Order> get orders => List.unmodifiable(_orders);
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPrefsService.instance.ensureInitialized();
     final storedOrders = prefs.getStringList(_ordersKey) ?? [];
     _orders
       ..clear()
@@ -24,15 +25,15 @@ class OrdersManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addOrder(Order order) {
+  Future<void> addOrder(Order order) async {
     _orders.insert(0, order);
-    _saveOrders();
+    await _saveOrders();
     notifyListeners();
   }
 
-  void removeOrder(String id) {
+  Future<void> removeOrder(String id) async {
     _orders.removeWhere((order) => order.id == id);
-    _saveOrders();
+    await _saveOrders();
     notifyListeners();
   }
 
@@ -45,7 +46,7 @@ class OrdersManager extends ChangeNotifier {
   }
 
   Future<void> _saveOrders() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SharedPrefsService.instance.prefs;
     await prefs.setStringList(
       _ordersKey,
       _orders.map((order) => jsonEncode(order.toJson())).toList(),
