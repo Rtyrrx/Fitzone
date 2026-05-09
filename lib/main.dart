@@ -1,32 +1,63 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'data/repositories/db_repository.dart';
+import 'firebase_options.dart';
+import 'providers/app_providers.dart';
+import 'screens/chat_page.dart';
 import 'screens/home.dart';
 import 'screens/login_page.dart';
 import 'screens/restaurant_page.dart';
 import 'services/cart_manager.dart';
-import 'services/orders_manager.dart';
 import 'services/auth_manager.dart';
-import 'services/mock_yummy_service.dart';
+import 'services/shared_prefs_service.dart';
 import 'services/user_preferences_manager.dart';
 import 'models/restaurant.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  usePathUrlStrategy();
-  runApp(const FitZoneApp());
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
+  await SharedPrefsService.instance.ensureInitialized();
+  await _initializeFirebase();
+  runApp(const ProviderScope(child: FitZoneApp()));
 }
 
-class FitZoneApp extends StatefulWidget {
+Future<void> _initializeFirebase() async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } on UnsupportedError catch (error) {
+    debugPrint(error.message);
+    try {
+      await Firebase.initializeApp();
+    } on FirebaseException catch (fallbackError) {
+      debugPrint('Firebase native initialization failed: $fallbackError');
+    }
+  } on FirebaseException catch (error) {
+    debugPrint('Firebase initialization failed: $error');
+  }
+}
+
+class FitZoneApp extends ConsumerStatefulWidget {
   const FitZoneApp({super.key});
 
   @override
-  State<FitZoneApp> createState() => _FitZoneAppState();
+  ConsumerState<FitZoneApp> createState() => _FitZoneAppState();
 }
 
-class _FitZoneAppState extends State<FitZoneApp> {
+class _FitZoneAppState extends ConsumerState<FitZoneApp> {
   ThemeMode _themeMode = ThemeMode.light;
   Color _seedColor = Colors.blue;
+  String? _lastSyncedUserId;
 
   final List<Color> _availableColors = [
     Colors.blue,
@@ -37,12 +68,10 @@ class _FitZoneAppState extends State<FitZoneApp> {
     Colors.teal,
   ];
 
-  final CartManager _cartManager = CartManager();
-  final OrdersManager _ordersManager = OrdersManager();
-  final AuthManager _authManager = AuthManager();
-  final UserPreferencesManager _userPreferencesManager =
-      UserPreferencesManager();
-  List<FitnessCenter> _fitnessCenters = [];
+  late final CartManager _cartManager;
+  late final AuthManager _authManager;
+  late final UserPreferencesManager _userPreferencesManager;
+  late final DBRepository _dbRepository;
 
   late final Future<void> _appInitializationFuture;
   late final GoRouter _router;
@@ -50,6 +79,13 @@ class _FitZoneAppState extends State<FitZoneApp> {
   @override
   void initState() {
     super.initState();
+    _themeMode = SharedPrefsService.instance.themeMode;
+    _seedColor = SharedPrefsService.instance.seedColor;
+    _cartManager = ref.read(cartManagerProvider);
+    _authManager = ref.read(authManagerProvider);
+    _userPreferencesManager = ref.read(userPreferencesProvider);
+    _dbRepository = ref.read(repositoryProvider);
+    _authManager.addListener(_handleAuthStateChanged);
     _appInitializationFuture = _initializeApp();
     _router = GoRouter(
       initialLocation: '/login',
@@ -64,14 +100,8 @@ class _FitZoneAppState extends State<FitZoneApp> {
         );
       },
       routes: [
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => LoginPage(
-            onLogin: () async {
-              await _authManager.signIn();
-            },
-          ),
-        ),
+        GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+        GoRoute(path: '/chat', builder: (context, state) => const ChatPage()),
         GoRoute(
           path: '/:tab',
           builder: (context, state) {
@@ -82,9 +112,7 @@ class _FitZoneAppState extends State<FitZoneApp> {
             }
             return Home(
               tab: tab,
-              fitnessCenters: _fitnessCenters,
               cartManager: _cartManager,
-              ordersManager: _ordersManager,
               authManager: _authManager,
               preferencesManager: _userPreferencesManager,
               themeMode: _themeMode,
@@ -120,19 +148,52 @@ class _FitZoneAppState extends State<FitZoneApp> {
                       return _buildRouteError('Center not found');
                     }
 
-                    final fitnessCenter = id < _fitnessCenters.length
-                        ? _fitnessCenters[id]
-                        : null;
-                    if (fitnessCenter == null) {
-                      return _buildRouteError('Center not found');
-                    }
+                    return Consumer(
+                      builder: (context, ref, child) {
+                        final centersAsync = ref.watch(fitnessCentersProvider);
+                        return centersAsync.when(
+                          loading: () => const Scaffold(
+                            body: Center(child: CircularProgressIndicator()),
+                          ),
+                          error: (error, stackTrace) =>
+                              _buildRouteError('Unable to load center'),
+                          data: (centers) {
+                            FitnessCenter? fitnessCenter;
+                            for (final center in centers) {
+                              if (center.id == id) {
+                                fitnessCenter = center;
+                                break;
+                              }
+                            }
 
-                    return FitnessCenterPage(
-                      centerId: id,
-                      fitnessCenter: fitnessCenter,
-                      cartManager: _cartManager,
-                      ordersManager: _ordersManager,
-                      preferencesManager: _userPreferencesManager,
+                            if (fitnessCenter == null) {
+                              return _buildRouteError('Center not found');
+                            }
+
+                            return FitnessCenterPage(
+                              centerId: id,
+                              fitnessCenter: fitnessCenter,
+                              cartManager: _cartManager,
+                              preferencesManager: _userPreferencesManager,
+                              onSubmitBooking: (order) async {
+                                final userId =
+                                    FirebaseAuth.instance.currentUser?.uid ??
+                                    SharedPrefsService.instance.activeUserId;
+                                final booking = order.copyWith(userId: userId);
+                                await ref
+                                    .read(repositoryProvider)
+                                    .saveBooking(booking);
+                                if (ref.read(firebaseConfiguredProvider) &&
+                                    FirebaseAuth.instance.currentUser != null) {
+                                  await ref
+                                      .read(firebaseBookingDaoProvider)
+                                      .saveBooking(booking);
+                                }
+                              },
+                            );
+                          },
+                        );
+                      },
                     );
                   },
                 );
@@ -145,14 +206,32 @@ class _FitZoneAppState extends State<FitZoneApp> {
   }
 
   Future<void> _initializeApp() async {
+    await SharedPrefsService.instance.ensureInitialized();
     await _authManager.init();
-    await _ordersManager.init();
-    await _userPreferencesManager.init();
-    final service = MockFitnessService();
-    final data = await service.getExploreData();
-    setState(() {
-      _fitnessCenters = data.fitnessCenters;
-    });
+    await _syncCurrentUserState(force: true);
+    await _dbRepository.init();
+  }
+
+  void _handleAuthStateChanged() {
+    unawaited(_syncCurrentUserState());
+  }
+
+  Future<void> _syncCurrentUserState({bool force = false}) async {
+    final user = Firebase.apps.isEmpty ? null : FirebaseAuth.instance.currentUser;
+    final userId = user?.uid ?? SharedPrefsService.instance.activeUserId;
+    if (!force && _lastSyncedUserId == userId) {
+      return;
+    }
+    _lastSyncedUserId = userId;
+    await SharedPrefsService.instance.setActiveUserId(userId);
+    await _dbRepository.setCurrentUserId(userId);
+    await _userPreferencesManager.switchUser(userId, email: user?.email);
+    if (mounted) {
+      setState(() {
+        _themeMode = SharedPrefsService.instance.themeMode;
+        _seedColor = SharedPrefsService.instance.seedColor;
+      });
+    }
   }
 
   Future<String?> _appRedirect(
@@ -175,7 +254,7 @@ class _FitZoneAppState extends State<FitZoneApp> {
       if (from != null && from.isNotEmpty && from != '/login') {
         return from;
       }
-      return '/${FitZoneTab.home.value}';
+      return '/${SharedPrefsService.instance.selectedTab}';
     }
 
     return null;
@@ -194,23 +273,34 @@ class _FitZoneAppState extends State<FitZoneApp> {
   }
 
   void _toggleThemeMode() {
+    final nextMode = _themeMode == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
     setState(() {
-      _themeMode = _themeMode == ThemeMode.light
-          ? ThemeMode.dark
-          : ThemeMode.light;
+      _themeMode = nextMode;
     });
+    SharedPrefsService.instance.setThemeMode(nextMode);
   }
 
   void _setThemeMode(bool isDark) {
+    final nextMode = isDark ? ThemeMode.dark : ThemeMode.light;
     setState(() {
-      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+      _themeMode = nextMode;
     });
+    SharedPrefsService.instance.setThemeMode(nextMode);
   }
 
   void _changeSeedColor(Color color) {
     setState(() {
       _seedColor = color;
     });
+    SharedPrefsService.instance.setSeedColor(color);
+  }
+
+  @override
+  void dispose() {
+    _authManager.removeListener(_handleAuthStateChanged);
+    super.dispose();
   }
 
   @override
