@@ -1,3 +1,28 @@
+# Endterm Report
+
+In this endterm project, I continued improving my existing Flutter fitness centers app instead of creating a new one. I kept the main app logic, routing, Firebase setup, and booking flow, and focused on adding the final required features in a clean way.
+
+The first big part I added was Chapter 19 platform-specific branding. I changed the app identity to `FitCenter` / `FitZone`, generated a new launcher icon, updated the Android and iOS app names, changed the web title and favicon, and added a branded splash screen. I also replaced the earlier icon idea with a more minimal modern `F` logo so the app looks cleaner and more professional across Android, iOS, macOS, and web.
+
+<p>
+  <img src="assets/branding/app_icon.png" alt="FitZone app icon" width="180" />
+  <img src="assets/branding/splash_logo.png" alt="FitZone splash logo" width="180" />
+</p>
+
+The second big part I added was a new Firebase-based functional feature: booking history. Now when a user creates or cancels a booking, the app stores a clear history in Firestore with details about who booked, what membership was booked, quantity, total price, booking type, and the exact time. I also made the Firebase history more readable by adding booking codes and user labels, and I showed this history inside the `My Bookings` screen in the app.
+
+The testing part was already added before, so this final stage helped connect everything together: the app now has testing support, proper branding assets, and a real Firebase feature that is useful and visible. Overall, I kept the project structure stable and extended the app step by step in a way that feels assignment-ready and practical.
+
+## Screenshots
+
+### Login Screen
+
+<img src="test/golden/goldens/login_page.png" alt="Login screen" width="260" />
+
+### Fitness Center Card
+
+<img src="test/golden/goldens/fitness_center_card.png" alt="Fitness center card" width="320" />
+
 # Testing Report
 
 - I added testing support to my existing Flutter fitness center app without creating a new project or rewriting the app.
