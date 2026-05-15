@@ -7,6 +7,7 @@ import '../data/database/app_database.dart';
 import '../data/firebase/booking_dao.dart';
 import '../data/firebase/message_dao.dart';
 import '../data/repositories/db_repository.dart';
+import '../models/booking_history_entry.dart';
 import '../models/chat_message.dart';
 import '../models/order.dart';
 import '../models/restaurant.dart';
@@ -50,6 +51,15 @@ final bookingsProvider = StreamProvider<List<Order>>((ref) async* {
     return;
   }
   yield* repository.watchBookings();
+});
+
+final bookingHistoryProvider = StreamProvider<List<BookingHistoryEntry>>((ref) {
+  final authState = ref.watch(firebaseAuthStateProvider);
+  final user = authState.valueOrNull;
+  if (!ref.watch(firebaseConfiguredProvider) || user == null) {
+    return const Stream<List<BookingHistoryEntry>>.empty();
+  }
+  return ref.watch(firebaseBookingDaoProvider).watchBookingHistory();
 });
 
 final cartManagerProvider = Provider<CartManager>((ref) {

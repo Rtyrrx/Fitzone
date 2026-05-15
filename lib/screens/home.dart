@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'explore_page.dart';
 import 'mybookings_page.dart';
 import 'profile_page.dart';
+import '../models/booking_history_entry.dart';
 import '../models/order.dart';
 import '../services/cart_manager.dart';
 import '../services/auth_manager.dart';
@@ -177,8 +178,11 @@ class _HomeState extends ConsumerState<Home> {
   Widget build(BuildContext context) {
     final centersAsync = ref.watch(fitnessCentersProvider);
     final bookingsAsync = ref.watch(bookingsProvider);
+    final bookingHistoryAsync = ref.watch(bookingHistoryProvider);
     final fitnessCenters = centersAsync.valueOrNull ?? const [];
     final bookings = bookingsAsync.valueOrNull ?? const <Order>[];
+    final bookingHistory =
+        bookingHistoryAsync.valueOrNull ?? const <BookingHistoryEntry>[];
     final centersError = centersAsync.hasError ? centersAsync.error : null;
 
     final screens = [
@@ -198,6 +202,12 @@ class _HomeState extends ConsumerState<Home> {
         bookings: bookings,
         isLoading: bookingsAsync.isLoading,
         error: bookingsAsync.hasError ? bookingsAsync.error : null,
+        bookingHistory: bookingHistory,
+        isHistoryLoading: bookingHistoryAsync.isLoading,
+        historyError: bookingHistoryAsync.hasError
+            ? bookingHistoryAsync.error
+            : null,
+        showCloudHistory: ref.watch(firebaseConfiguredProvider),
         onDeleteBooking: (order) async {
           if (ref.read(firebaseConfiguredProvider) &&
               ref.read(firebaseAuthProvider).currentUserId() != null) {

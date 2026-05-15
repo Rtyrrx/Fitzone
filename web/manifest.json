@@ -1,11 +1,11 @@
 {
-    "name": "chapter3",
-    "short_name": "chapter3",
+    "name": "FitCenter",
+    "short_name": "FitZone",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Find fitness centers, compare memberships, and manage bookings with FitCenter.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
