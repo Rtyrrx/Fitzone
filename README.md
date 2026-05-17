@@ -32,8 +32,8 @@ These assets can still be swapped later if needed. For now, I used them as the p
 
 I will include these screenshots for this part:
 
-1. <img width="300" height="300" alt="logo" src="https://github.com/user-attachments/assets/34a759b7-4649-40da-aa3b-2f97ccb6b2b1" />
-2. <img width="300" height="300" alt="icon" src="https://github.com/user-attachments/assets/8fb0de89-88f3-4c32-a4c5-b13ff27035d6" />
+1. <img width="300" height="600" alt="logo" src="https://github.com/user-attachments/assets/34a759b7-4649-40da-aa3b-2f97ccb6b2b1" />
+2. <img width="200" height="200" alt="icon" src="https://github.com/user-attachments/assets/8fb0de89-88f3-4c32-a4c5-b13ff27035d6" />
 
 
 These screenshots show that the app is no longer using the default Flutter branding and now has its own fitness-themed identity.
