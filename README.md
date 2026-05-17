@@ -79,7 +79,7 @@ This makes Firestore act like a simple cloud database for the booking history.
 
 I will include seven screenshots in total:
 
-1. <img width="527" height="251" alt="Screenshot 2026-05-18 003622" src="https://github.com/user-attachments/assets/6dac4b58-6e9a-4b43-b74b-68c4d8bf2ea6" /> 
+1. <img width="1484" height="652" alt="Screenshot 2026-05-18 003622" src="https://github.com/user-attachments/assets/6dac4b58-6e9a-4b43-b74b-68c4d8bf2ea6" /> 
 
 2. <img width="1865" height="945" alt="Screenshot 2026-05-18 003610" src="https://github.com/user-attachments/assets/140bc41c-346c-4985-a7e5-ab823f98a06f" />
 
