@@ -32,8 +32,8 @@ These assets can still be swapped later if needed. For now, I used them as the p
 
 I will include these screenshots for this part:
 
-1. <img width="941" height="1672" alt="logo" src="https://github.com/user-attachments/assets/34a759b7-4649-40da-aa3b-2f97ccb6b2b1" />
-2. <img width="1254" height="1254" alt="icon" src="https://github.com/user-attachments/assets/8fb0de89-88f3-4c32-a4c5-b13ff27035d6" />
+1. <img width="300" height="300" alt="logo" src="https://github.com/user-attachments/assets/34a759b7-4649-40da-aa3b-2f97ccb6b2b1" />
+2. <img width="300" height="300" alt="icon" src="https://github.com/user-attachments/assets/8fb0de89-88f3-4c32-a4c5-b13ff27035d6" />
 
 
 These screenshots show that the app is no longer using the default Flutter branding and now has its own fitness-themed identity.
@@ -79,9 +79,9 @@ This makes Firestore act like a simple cloud database for the booking history.
 
 I will include seven screenshots in total:
 
-1.  <img width="941" height="1672" alt="logo" src="https://github.com/user-attachments/assets/34a759b7-4649-40da-aa3b-2f97ccb6b2b1" />
-   
-2. <img width="1254" height="1254" alt="icon" src="https://github.com/user-attachments/assets/8fb0de89-88f3-4c32-a4c5-b13ff27035d6" />
+1. <img width="527" height="251" alt="Screenshot 2026-05-18 003622" src="https://github.com/user-attachments/assets/6dac4b58-6e9a-4b43-b74b-68c4d8bf2ea6" /> 
+
+2. <img width="1865" height="945" alt="Screenshot 2026-05-18 003610" src="https://github.com/user-attachments/assets/140bc41c-346c-4985-a7e5-ab823f98a06f" />
 
 3. <img width="1866" height="939" alt="Screenshot 2026-05-18 003714" src="https://github.com/user-attachments/assets/5e5ef3b2-0738-48d6-9a74-dd75b300c5df" />
 
